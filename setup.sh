@@ -1,3 +1,5 @@
 #!/bin/bash
-ln -s $(pwd)/.emacs ~/.emacs
-ln -s $(pwd)/.tmux.conf ~/.tmux.conf
+FILES=".emacs .tmux.conf .gitconfig"
+for i in $FILES; do
+    ln -s $(pwd)/$i ~/$i
+done

@@ -1,0 +1,10 @@
+[alias]
+	st = status
+	co = checkout
+	ci = commit
+	br = branch
+[user]
+	name = Andre Lima
+	email = andre.lima@gmail.com
+[color]
+	ui = true
