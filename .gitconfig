@@ -8,3 +8,5 @@
 	email = andre.lima@gmail.com
 [color]
 	ui = true
+[core]
+	excludesfile = ~/.gitignore
