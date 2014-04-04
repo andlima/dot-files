@@ -19,6 +19,8 @@
 
 (setq indent-line-function 'insert-tab)
 
+(setq x-select-enable-clipboard t)
+
 ;(global-set-key [?\C-x ?\C-g] 'rgrep)
 
 ;(custom-set-variables
