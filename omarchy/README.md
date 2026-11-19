@@ -3,7 +3,7 @@
 Tudo que difere da instalação padrão do [Omarchy](https://omarchy.org/) (Arch +
 Hyprland, config em Lua) no meu notebook, e como refazer numa instalação nova.
 
-Última verificação: 2026-11-07, Omarchy 4.0.6, Hyprland 0.56. A lista foi obtida
+Última verificação: 2026-11-18, Omarchy 4.5.0, Hyprland 0.56. A lista foi obtida
 com `diff` entre `~/.config/...` e os templates em `/usr/share/omarchy/config/`.
 
 ## Reinstalação rápida
@@ -95,6 +95,33 @@ Config: modus-vivendi-tinted, JetBrainsMono Nerd Font 11, which-key, tree-sitter
 eglot, MELPA (vertico, orderless, marginalia, magit). `C-z` fica livre porque é o
 prefix do tmux. Cache em `~/.cache/emacs/`. Nunca deixe `~/.emacs.d` vazio nem
 `~/.emacs` existir: o Emacs prefere ambos a `~/.config/emacs/`.
+
+### Ditado por voz (Voxtype): `voxtype/config.toml` → `~/.config/voxtype/config.toml`
+
+Backend de ditado do Omarchy é o Voxtype (`omarchy default dictation voxtype`
+instala e grava `voxtype` em `~/.config/omarchy/defaults/dictation`). Desde o
+Omarchy 4.5 a tecla é `Alt+Space` (toggle) e `Alt+Alt_R` (push-to-talk), vindas
+do default; `F9` e `Super+Ctrl+X` seguem no `bindings.lua` como legado.
+
+Diferenças no `config.toml` em relação ao que o Omarchy instala:
+
+| O quê | Config | Default |
+|-------|--------|---------|
+| Modelo Whisper multilíngue (PT-BR e EN) | `model = "small"` | `base.en` (só inglês) |
+| Detecção automática de idioma | `language = "auto"` | `en` |
+| Hotkey interna do Voxtype desligada (o Hyprland dispara `omarchy-dictation`) | `[hotkey] enabled = false` | `false` |
+
+O modelo precisa estar em `~/.local/share/voxtype/models/ggml-small.bin`
+(`voxtype setup --download --model small`). Depois de editar o config:
+`systemctl --user restart voxtype` e confira `journalctl --user -u voxtype`
+("Loading transcription model: small"). Sintoma de modelo errado/ausente: o
+daemon continua com `base.en`, o log mostra `auto-detected language: xx (p = 0.0100)`
+e fala em português vira frases inventadas em inglês. Cuidado com a TUI
+`voxtype configure`: ela regrava o arquivo inteiro ao salvar.
+
+Roda em CPU (AVX2). Para usar a RTX 3050 via Vulkan: `sudo voxtype setup gpu --enable`
+e `Environment="VOXTYPE_VULKAN_DEVICE=nvidia"` num drop-in do serviço; aí vale
+trocar para `large-v3-turbo`.
 
 ### Bluetooth
 

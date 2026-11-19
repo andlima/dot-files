@@ -123,6 +123,22 @@ if [[ -d "$HOME/.emacs.d" ]]; then
 fi
 [[ -e "$HOME/.emacs" ]] && todo "~/.emacs exists; Emacs will prefer it over ~/.config/emacs (don't run the root setup.sh on Omarchy)"
 
+# ---------------------------------------------------------------- voxtype (dictation)
+log "Voxtype dictation (Alt+Space): multilingual 'small' Whisper model, config"
+if command -v voxtype >/dev/null; then
+  install_file "$HERE/voxtype/config.toml" "$HOME/.config/voxtype/config.toml"
+  if [[ "$(cat "$HOME/.config/omarchy/defaults/dictation" 2>/dev/null)" != "voxtype" ]]; then
+    mkdir -p "$HOME/.config/omarchy/defaults" && echo voxtype > "$HOME/.config/omarchy/defaults/dictation"
+    echo "    set Omarchy dictation backend to voxtype"
+  fi
+  if [[ -f "$HOME/.local/share/voxtype/models/ggml-small.bin" ]]; then skip "whisper model small"; else
+    voxtype setup --download --model small --quiet
+  fi
+  systemctl --user restart voxtype 2>/dev/null && echo "    restarted voxtype.service" || true
+else
+  todo "install dictation first: omarchy default dictation voxtype   (then re-run this script)"
+fi
+
 # ---------------------------------------------------------------- optional: specbutler
 if (( WITH_SPEC )); then
   log "specbutler (spec CLI) via pipx"
