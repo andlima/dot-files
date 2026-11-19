@@ -67,7 +67,7 @@ translate = false
 mode = "local"
 flash_attention = false
 on_demand_loading = false
-gpu_isolation = true
+gpu_isolation = false
 eager_processing = false
 
 # Number of CPU threads for inference (omit for auto-detection)

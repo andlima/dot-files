@@ -121,11 +121,17 @@ e fala em português vira frases inventadas em inglês. Cuidado com a TUI
 `voxtype configure`: ela regrava o arquivo inteiro ao salvar.
 
 GPU: `sudo voxtype setup gpu --enable` troca o binário para a variante Vulkan
-(`voxtype setup gpu --status` mostra "GPU (Vulkan) - active"). Como o notebook tem
-Intel + NVIDIA e a seleção automática pega a primeira, `voxtype/gpu.conf` →
-`~/.config/systemd/user/voxtype.service.d/gpu.conf` fixa `VOXTYPE_VULKAN_DEVICE=nvidia`
-(precisa de `systemctl --user daemon-reload`). Com a RTX 3050 o large-v3-turbo
-carrega em <1 s e transcreve 3 s de áudio em ~2 s.
+(`voxtype setup gpu --status` mostra "GPU (Vulkan) - active"). O notebook tem
+Intel + NVIDIA; com os dois drivers Vulkan carregados o whisper usa o device 0
+(Intel) e large-v3-turbo leva ~60 s para 8 s de áudio. `VOXTYPE_VULKAN_DEVICE=nvidia`
+sozinho não resolve porque precisa do `vulkan-tools` para casar o nome. Por isso
+`voxtype/gpu.conf` → `~/.config/systemd/user/voxtype.service.d/gpu.conf` expõe só
+o ICD da NVIDIA (`VK_DRIVER_FILES=/usr/share/vulkan/icd.d/nvidia_icd.json`);
+`systemctl --user daemon-reload` depois. O config também tem `gpu_isolation = false`:
+o modelo fica residente na GPU (~1,5 GB VRAM) e os logs `ggml_vulkan` aparecem no
+journal, então `voxtype info accel` consegue responder. Verificação: journal com
+"ggml_vulkan: Found 1 Vulkan devices: 0 = NVIDIA GeForce RTX 3050" e
+`nvidia-smi` listando `/usr/bin/voxtype`.
 
 ### Bluetooth
 
