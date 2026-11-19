@@ -107,21 +107,25 @@ Diferenças no `config.toml` em relação ao que o Omarchy instala:
 
 | O quê | Config | Default |
 |-------|--------|---------|
-| Modelo Whisper multilíngue (PT-BR e EN) | `model = "small"` | `base.en` (só inglês) |
+| Modelo Whisper multilíngue (PT-BR e EN), roda na GPU | `model = "large-v3-turbo"` | `base.en` (só inglês, CPU) |
 | Detecção automática de idioma | `language = "auto"` | `en` |
 | Hotkey interna do Voxtype desligada (o Hyprland dispara `omarchy-dictation`) | `[hotkey] enabled = false` | `false` |
 
-O modelo precisa estar em `~/.local/share/voxtype/models/ggml-small.bin`
-(`voxtype setup --download --model small`). Depois de editar o config:
+O modelo precisa estar em `~/.local/share/voxtype/models/ggml-large-v3-turbo.bin`
+(`voxtype setup --download --model large-v3-turbo`, 1,6 GB; `small` fica no disco
+como alternativa para CPU). Depois de editar o config:
 `systemctl --user restart voxtype` e confira `journalctl --user -u voxtype`
-("Loading transcription model: small"). Sintoma de modelo errado/ausente: o
+("Loading transcription model: large-v3-turbo"). Sintoma de modelo errado/ausente: o
 daemon continua com `base.en`, o log mostra `auto-detected language: xx (p = 0.0100)`
 e fala em português vira frases inventadas em inglês. Cuidado com a TUI
 `voxtype configure`: ela regrava o arquivo inteiro ao salvar.
 
-Roda em CPU (AVX2). Para usar a RTX 3050 via Vulkan: `sudo voxtype setup gpu --enable`
-e `Environment="VOXTYPE_VULKAN_DEVICE=nvidia"` num drop-in do serviço; aí vale
-trocar para `large-v3-turbo`.
+GPU: `sudo voxtype setup gpu --enable` troca o binário para a variante Vulkan
+(`voxtype setup gpu --status` mostra "GPU (Vulkan) - active"). Como o notebook tem
+Intel + NVIDIA e a seleção automática pega a primeira, `voxtype/gpu.conf` →
+`~/.config/systemd/user/voxtype.service.d/gpu.conf` fixa `VOXTYPE_VULKAN_DEVICE=nvidia`
+(precisa de `systemctl --user daemon-reload`). Com a RTX 3050 o large-v3-turbo
+carrega em <1 s e transcreve 3 s de áudio em ~2 s.
 
 ### Bluetooth
 

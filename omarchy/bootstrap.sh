@@ -124,15 +124,20 @@ fi
 [[ -e "$HOME/.emacs" ]] && todo "~/.emacs exists; Emacs will prefer it over ~/.config/emacs (don't run the root setup.sh on Omarchy)"
 
 # ---------------------------------------------------------------- voxtype (dictation)
-log "Voxtype dictation (Alt+Space): multilingual 'small' Whisper model, config"
+log "Voxtype dictation (Alt+Space): multilingual large-v3-turbo on the NVIDIA GPU, config"
 if command -v voxtype >/dev/null; then
   install_file "$HERE/voxtype/config.toml" "$HOME/.config/voxtype/config.toml"
+  install_file "$HERE/voxtype/gpu.conf" "$HOME/.config/systemd/user/voxtype.service.d/gpu.conf"
+  systemctl --user daemon-reload 2>/dev/null || true
+  if voxtype setup gpu --status 2>/dev/null | grep -q 'GPU (Vulkan) - active'; then skip "vulkan backend"; else
+    sudo voxtype setup gpu --enable
+  fi
   if [[ "$(cat "$HOME/.config/omarchy/defaults/dictation" 2>/dev/null)" != "voxtype" ]]; then
     mkdir -p "$HOME/.config/omarchy/defaults" && echo voxtype > "$HOME/.config/omarchy/defaults/dictation"
     echo "    set Omarchy dictation backend to voxtype"
   fi
-  if [[ -f "$HOME/.local/share/voxtype/models/ggml-small.bin" ]]; then skip "whisper model small"; else
-    voxtype setup --download --model small --quiet
+  if [[ -f "$HOME/.local/share/voxtype/models/ggml-large-v3-turbo.bin" ]]; then skip "whisper model large-v3-turbo"; else
+    voxtype setup --download --model large-v3-turbo --quiet
   fi
   systemctl --user restart voxtype 2>/dev/null && echo "    restarted voxtype.service" || true
 else
